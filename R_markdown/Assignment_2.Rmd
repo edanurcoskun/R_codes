@@ -1,0 +1,216 @@
+---
+title: "Assignment - 2"
+author: "Eda Nur COSKUN"
+date: "14 01 2021"
+output: word_document
+---
+
+****
+```{r include=FALSE}
+library(tidyverse)
+ourdata <- read_csv2("data/assignment2_data.csv")
+```
+### PART - 1
+Take a sample of 100 observations from this data("assignment2_data.csv"), and save this sample as a new data. Answer the following questions according to this new data...
+
+****
+
+```{r include=FALSE}
+set.seed(2016555019) 
+new_data <- ourdata[sample(nrow(ourdata), 100),]
+```
+
+1. **Calculate the mean sales’ values for each color.**
+
+```{r include=FALSE}
+mean_for_color <- new_data %>% 
+  group_by(Color) %>%
+  summarize(Mean_Sales = mean(Sales))
+```
+
+```{r echo=FALSE}
+knitr::kable(mean_for_color)
+```
+
+****
+
+2. **Calculate the mean sales’ values for each region.**
+
+```{r include=FALSE}
+mean_for_region <- new_data %>% 
+  group_by(Region) %>%
+  summarize(Mean_Sales = mean(Sales))
+```
+
+```{r echo=FALSE}
+knitr::kable(mean_for_region)
+```
+
+****
+
+3. **Identify the five highest sales’ value according to date, color and region separately.**
+
+```{r include=FALSE}
+highest_sales <- new_data %>%
+  group_by() %>%
+  summarize(Date, Color, Region, Sales) %>% 
+  arrange(desc(Sales)) %>%
+  filter(row_number() == 1:5)
+```
+
+```{r echo=FALSE}
+knitr::kable(highest_sales)
+```
+
+****
+
+<br>
+
+4. **Identify the month in which the mean sales’ value is the highest.**
+
+```{r include=FALSE}
+sep_date<-new_data %>%
+  separate(Date, into = c("Day", "Month", "Year"), sep ="-")
+
+highest_month <- sep_date %>% 
+  group_by(Month) %>%
+  summarize(Mean_Sales = mean(Sales)) %>%
+  arrange(desc(Mean_Sales)) %>%
+  filter(row_number() == 1)
+```
+
+   + The month that has the highest mean sales value is **" `r highest_month$Month` "** with **" `r highest_month$Mean_Sales` "** value.
+
+<br>
+
+****
+
+5. **Plot the sales according to years.**
+
+<br>
+
+```{r echo=FALSE, fig.height=7, fig.width=7}
+sep_date <- new_data %>%
+  separate(Date, into = c("Day", "Month", "Year"), sep ="-")
+
+ggplot(data = sep_date) +
+  geom_boxplot( mapping = aes(x = Year, y = Sales, color = Year)) 
+```
+
+<br>
+
+<br> 
+
+### PART - 2
+Answer the following questions with using the words, which are provided in stringr::words...
+
+****
+
+1. **Take a sample of 100 words from this data, and save this sample as a new data.**
+
+```{r include=FALSE}
+set.seed(2016555019) 
+new_data <- sample(words, 100)
+
+with_col_name <- tibble(words = new_data)
+```
+
+```{r echo=FALSE}
+knitr::kable(with_col_name[1:10,])
+```
+...
+
+****
+
+2. **Find words which are starting with “a” and ending with “e”.**
+
+```{r include=FALSE}
+with_a = str_subset(new_data, "^a")
+
+a_and_e <- tibble(a_e = str_subset(with_a, "e$"))
+```
+
+   + The word(s) that is starting with "a" and ending with "e"  is **" `r a_and_e` "**.
+
+****
+
+3. **Calculate the number of words which have more than 3 vowels.**
+
+```{r include=FALSE}
+num_more_three <- sum(str_count(new_data, "(a|e|i|o|u)") > 3)
+
+logic_more_three <- tibble(
+  words = new_data,
+  logical = str_count(new_data, "(a|e|i|o|u)") > 3
+)
+
+more_three <- logic_more_three %>%
+  group_by(words) %>%
+  summarize(which(logical == TRUE))
+
+all_words <- str_c(more_three[1] %>%
+                      .[[1]], collapse = ", ")
+```
+
+   + There are **" `r  num_more_three` "** words(*`r all_words`*) that have more than 3 vowels.
+   
+****
+
+4. **List the five longest word in your data.**
+
+
+```{r include=FALSE}
+longest <- tibble(words = new_data,
+                  lengths = (str_length(new_data)))
+longest_5 <- longest %>%
+    arrange(desc(lengths)) %>%
+    head(5)
+```
+
+```{r echo=FALSE}
+knitr::kable(longest_5)
+```
+
+****
+
+5. **Try to find word(s) which contain any of these words: age, any, day, exp, her, pro, the.**
+
+```{r include=FALSE}
+containing_words <- tibble(
+  contains = str_subset(new_data, "(age|any|day|exp|her|pro|the)")
+)
+```
+
+```{r echo=FALSE}
+knitr::kable(containing_words)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
